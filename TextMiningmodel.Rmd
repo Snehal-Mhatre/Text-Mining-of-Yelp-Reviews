@@ -1,23 +1,4 @@
----
-title: "Assignment 3"
-author: "Anisha Joshi, Sakshi Wadhwa, Snehal Mhatre"
-date: "4/9/2021"
-output: pdf_document
----
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-#Part A answer
-#(a) Explore the data.
-#How are star ratings distributed? How will you use the star ratings to obtain a label indicating
-#‘positive’ or ‘negative’ – explain using the data, graphs, etc.?
 #Do star ratings have any relation to ‘funny’, ‘cool’, ‘useful’? Is this what you expected?
 ```{r results=FALSE, cache=TRUE}
 library('tidyverse')
@@ -79,14 +60,6 @@ line_graph2 <- resReviewsData %>% group_by(stars) %>% summarize(mean(useful))
 ggplot(line_graph2) + aes(x=line_graph2$stars, y=line_graph2$`mean(useful)`, fill=line_graph2$stars) + geom_line() + xlab("Stars") + ylab("Average of Useful Reaction")
 
 ```
-#(b) What are some words indicative of positive and negative sentiment? (One approach is to determine
-#the average star rating for a word based on star ratings of documents where the word occurs). Do
-#these ‘positive’ and ‘negative’ words make sense in the context of user reviews being considered?
-#(For this, since we’d like to get a general sense of positive/negative terms, you may like to consider a
-#pruned set of terms -- say, those which occur in a certain minimum and maximum number of
-#documents). 
-#Use tidytext for tokenization, removing stopworks, stemming/lemmatization, etc.
-```{r message=FALSE , cache=TRUE}
 
 #tokenize the text of the reviews in the column named 'text'
 rrTokens <- rrData %>% unnest_tokens(word, text)
@@ -201,8 +174,7 @@ head(rrTokens)
 
 #Sentiment analysis using the 3 sentiment dictionaries available with tidytext (use library(textdata))
 #Sentiment analysis using the 3 sentiment dictionaries available with tidytext (use library(textdata))
-#Matching Terms for each Dictionary - Answer (C) - Part 1
-#(c) How many matching terms are there for each of the dictionaries?
+#Matching Terms for each Dictionary 
 #Consider using the dictionary based positive and negative terms to predict sentiment (positive or
 #negative based on star rating) of a movie. One approach for this is: using each dictionary, obtain an
 #aggregated positiveScore and a negativeScore for each review; for the AFINN dictionary, an
@@ -226,7 +198,7 @@ barplot(table_terms, main =" Matching terms in each dictionary")
 
 ```
 
-#Sentiment Analysis using 3 dictionaries - Answer (C) - Part 2
+
 ```{r}
 
 ## Dictionary 1
@@ -376,17 +348,6 @@ xx<-revSenti_afinn %>% filter(hiLo!=0)
 table(actual=xx$hiLo, predicted=xx$pred_hiLo )
 
 ```
-
-#(d) Develop models to predict review sentiment. 
-#(i) Develop models using only the sentiment dictionary terms – try the three different dictionaries;
-#how do the dictionaries compare in terms of predictive performance ? Then with a combination of
-#the three dictionaries, ie. combine all dictionary terms.
-#Do you use term frequency, tfidf, or other measures, and why? What is the size of the documentterm matrix?
-#Should you use stemming or lemmatization when using the dictionaries?
-#(ii) Develop models using a broader list of terms (i.e. not restricted to the dictionary terms only) –
-#how do you obtain these terms? Will you use stemming here?
-#Report on performance of the models. Compare performance with that in part (c) above.
-#How do you evaluate performance? Which performance measures do you use, why.
 #we can learn a model to predict hiLo ratings, from words in reviews
 ```{r message =FALSE, cache=TRUE}
 
@@ -1620,41 +1581,6 @@ bThr
 table(actual=revDTM_split_trn$hiLo,preds=revDTM_split_predTrn$predictions[,2]>bThr)
 table(actual=revDTM_split_tst$hiLo,preds=revDTM_split_predTst$predictions[,2]>bThr)
 
-
-# #Random Forest Model with number of trees = 500
-# 
-# rfModel2<-ranger(dependent.variable.name = "hiLo", data=revDTM_split_trn %>% select(-review_id), num.trees = 500, importance='permutation', probability = TRUE)
-# 
-# rfModel2
-# 
-# #Make predictions from the model on trn and test dataset
-# revDTM_split_predTrn2<- predict(rfModel2, revDTM_split_trn %>% select(-review_id))
-# revDTM_split_predTst2<- predict(rfModel2, revDTM_split_tst %>% select(-review_id))
-# 
-# #Confusion Matrix at 0.5 for Trn and Tst dataset
-# table(actual=revDTM_split_trn$hiLo,preds=revDTM_split_predTrn2$predictions[,2]>0.5)
-# table(actual=revDTM_split_tst$hiLo,preds=revDTM_split_predTst2$predictions[,2]>0.5)
-# 
-# library(pROC)
-# #find the optimal TH
-# rocTrn2 <- roc(revDTM_split_trn$hiLo,revDTM_split_predTrn2$predictions[,2], levels=c(-1, 1))
-# rocTst2 <- roc(revDTM_split_tst$hiLo,revDTM_split_predTst2$predictions[,2], levels=c(-1, 1))
-# 
-# plot.roc(rocTrn2, col='blue', legacy.axes = TRUE)
-# plot.roc(rocTst2, col='red', add=TRUE)
-# legend("bottomright", legend=c("Training", "Test"),
-#         col=c("blue", "red"), lwd=2, cex=0.8, bty='n')
-# 
-# #best threshold from ROC
-# bThr2<-coords(rocTrn2, "best", ret="threshold", transpose = FALSE)
-# bThr2 <- as.numeric(bThr2)
-# bThr2
-# 
-# #Confusion Matrix at bThr for Trn and Tst dataset
-# table(actual=revDTM_split_trn$hiLo,preds=revDTM_split_predTrn2$predictions[,2]>bThr)
-# table(actual=revDTM_split_tst$hiLo,preds=revDTM_split_predTst2$predictions[,2]>bThr)
-# 
-
 #Random Forest Model with number of trees = 200
 
 rfModel3<-ranger(dependent.variable.name = "hiLo", data=revDTM_split_trn %>% select(-review_id), num.trees = 200, importance='permutation', probability = TRUE)
@@ -1732,26 +1658,6 @@ revDTM_predTrn_svmBT<-predict(svm_BT, revDTM_split_trn)
 table(actual= revDTM_split_trn$hiLo, predicted= revDTM_predTrn_svmBT)
 revDTM_predTst_svmBT<-predict(svm_BT, revDTM_split_tst)
 table(actual= revDTM_split_tst$hiLo, predicted= revDTM_predTst_svmBT)
-
-
-# #use the tune function to do a grid search over a set of parameter values : Parameter Tuning
-# 
-# system.time( svm_BT1 <- tune(svm, as.factor(hiLo) ~., data = revDTM_split_trn %>% select(-review_id),kernel="radial", ranges = list(cost=c(0.1,1,10,50), gamma = c(0.5,1,2,5, 10),scale=FALSE)) )
-# 
-# #Check performance for different tuned parameters
-# svm_BT1$performances
-# 
-# #Best model
-# svm_BT1$best.parameters
-# svm_BT1$best.model
-# 
-# #predictions from best model : Confusion Matrix
-# 
-# revDTM_predTrn_svmBT<-predict(svm_BT1$best.model, revDTM_split_trn)
-# table(actual= revDTM_split_trn$hiLo, predicted= revDTM_predTrn_svmBT)
-# revDTM_predTst_svmBT<-predict(svm_BT1$best.model, revDTM_split_tst)
-# table(actual= revDTM_split_tst$hiLo, predicted= revDTM_predTst_svmBT)
-
 ```
 
 
